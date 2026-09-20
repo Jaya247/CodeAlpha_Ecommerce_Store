@@ -1,0 +1,20 @@
+{
+  "name": "codealpha-ecommerce-store",
+  "version": "1.0.0",
+  "description": "Simple E-commerce Store built with Express.js for CodeAlpha Full Stack Development Internship (Task 1)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

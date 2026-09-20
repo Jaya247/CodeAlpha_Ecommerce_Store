@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foliage — Simple E-commerce Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">Foliage<span>.</span></a>
+      <nav class="nav-links" id="user-slot"></nav>
+      <nav class="nav-links">
+        <a href="/pages/cart.html">Cart <span class="cart-badge" id="cart-count" style="display:none">0</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Everyday goods, thoughtfully made.</h1>
+      <p>Browse the catalogue, add what you like to your cart, and check out in a couple of clicks.</p>
+    </div>
+  </section>
+
+  <main class="container">
+    <div class="filters" id="filters">
+      <button class="active" data-category="All">All</button>
+    </div>
+
+    <div class="product-grid" id="product-grid"></div>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    let allProducts = [];
+    let activeCategory = "All";
+
+    async function loadProducts() {
+      allProducts = await api("/products");
+      renderFilters();
+      renderGrid(allProducts);
+    }
+
+    function renderFilters() {
+      const categories = ["All", ...new Set(allProducts.map((p) => p.category))];
+      const filtersEl = document.getElementById("filters");
+      filtersEl.innerHTML = categories
+        .map(
+          (c) =>
+            `<button data-category="${c}" class="${c === activeCategory ? "active" : ""}">${c}</button>`
+        )
+        .join("") + `<div class="search-box"><input type="text" id="search-input" placeholder="Search products..." /></div>`;
+
+      filtersEl.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          activeCategory = btn.dataset.category;
+          filtersEl.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          applyFilters();
+        });
+      });
+
+      document.getElementById("search-input").addEventListener("input", (e) => {
+        applyFilters(e.target.value);
+      });
+    }
+
+    function applyFilters(search = "") {
+      let filtered = allProducts;
+      if (activeCategory !== "All") {
+        filtered = filtered.filter((p) => p.category === activeCategory);
+      }
+      if (search) {
+        const q = search.toLowerCase();
+        filtered = filtered.filter((p) => p.name.toLowerCase().includes(q));
+      }
+      renderGrid(filtered);
+    }
+
+    function renderGrid(products) {
+      const grid = document.getElementById("product-grid");
+      if (products.length === 0) {
+        grid.innerHTML = `<div class="empty-state"><h2>No products found</h2><p>Try a different search or category.</p></div>`;
+        return;
+      }
+      grid.innerHTML = products
+        .map(
+          (p) => `
+        <div class="product-card">
+          <a href="/pages/product.html?id=${p.id}"><img src="${p.image}" alt="${escapeHtml(p.name)}" /></a>
+          <div class="body">
+            <span class="category">${p.category}</span>
+            <a href="/pages/product.html?id=${p.id}"><h3>${escapeHtml(p.name)}</h3></a>
+            <div class="price">${formatPrice(p.price)}</div>
+            <button class="btn btn-primary add-btn" data-id="${p.id}">Add to cart</button>
+          </div>
+        </div>`
+        )
+        .join("");
+
+      grid.querySelectorAll(".add-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          try {
+            await api("/cart", {
+              method: "POST",
+              body: JSON.stringify({ productId: btn.dataset.id, quantity: 1 }),
+            });
+            showToast("Added to cart");
+            renderHeader();
+          } catch (err) {
+            showToast(err.message);
+          }
+        });
+      });
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>

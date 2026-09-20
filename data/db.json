@@ -1,0 +1,100 @@
+{
+  "products": [
+    {
+      "id": "p1",
+      "name": "Aurora Wireless Headphones",
+      "category": "Electronics",
+      "price": 2499,
+      "stock": 24,
+      "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
+      "description": "Over-ear wireless headphones with active noise cancellation, 30-hour battery life and plush memory-foam ear cushions."
+    },
+    {
+      "id": "p2",
+      "name": "Terra Canvas Backpack",
+      "category": "Bags",
+      "price": 1799,
+      "stock": 39,
+      "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80",
+      "description": "Water-resistant canvas backpack with a padded 15-inch laptop sleeve and reinforced stitching for daily commutes."
+    },
+    {
+      "id": "p3",
+      "name": "Ember Ceramic Mug Set",
+      "category": "Home",
+      "price": 899,
+      "stock": 59,
+      "image": "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=600&q=80",
+      "description": "Set of two hand-glazed stoneware mugs, dishwasher and microwave safe, 350ml capacity each."
+    },
+    {
+      "id": "p4",
+      "name": "Pulse Fitness Smartwatch",
+      "category": "Electronics",
+      "price": 3499,
+      "stock": 15,
+      "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
+      "description": "Track heart rate, sleep and workouts with a 7-day battery, AMOLED display and 5ATM water resistance."
+    },
+    {
+      "id": "p5",
+      "name": "Meadow Cotton Throw Blanket",
+      "category": "Home",
+      "price": 1299,
+      "stock": 30,
+      "image": "https://images.unsplash.com/photo-1580301762395-83c0efaa079b?w=600&q=80",
+      "description": "Soft 100% cotton throw blanket, 130x170cm, machine washable, woven in a classic herringbone pattern."
+    },
+    {
+      "id": "p6",
+      "name": "Voyager Leather Wallet",
+      "category": "Accessories",
+      "price": 999,
+      "stock": 50,
+      "image": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&q=80",
+      "description": "Slim bifold wallet in genuine leather with RFID-blocking lining and six card slots."
+    }
+  ],
+  "users": [
+    {
+      "id": "e2dd734f-79df-4a0c-8496-ba651ece67e5",
+      "name": "Jaya Maurya",
+      "email": "jaya123@gmail.com",
+      "password": "$2a$10$09ZrZaJuxWQmj.1klQ9V0ubPQ41hco1WcOmqcKkHWHrtChbDPeSk6",
+      "createdAt": "2026-08-08T22:51:47.388Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "b2eb8a06-6272-4efe-be86-2f32d9553fca",
+      "userId": "e2dd734f-79df-4a0c-8496-ba651ece67e5",
+      "items": [
+        {
+          "productId": "p2",
+          "name": "Terra Canvas Backpack",
+          "price": 1799,
+          "quantity": 1,
+          "subtotal": 1799
+        },
+        {
+          "productId": "p3",
+          "name": "Ember Ceramic Mug Set",
+          "price": 899,
+          "quantity": 1,
+          "subtotal": 899
+        },
+        {
+          "productId": "p1",
+          "name": "Aurora Wireless Headphones",
+          "price": 2499,
+          "quantity": 1,
+          "subtotal": 2499
+        }
+      ],
+      "total": 5197,
+      "shippingAddress": "qqqq",
+      "status": "Processing",
+      "createdAt": "2026-08-08T22:52:38.676Z"
+    }
+  ]
+}

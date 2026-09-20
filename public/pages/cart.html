@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart — Foliage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">Foliage<span>.</span></a>
+      <nav class="nav-links" id="user-slot"></nav>
+      <nav class="nav-links">
+        <a href="/pages/cart.html">Cart <span class="cart-badge" id="cart-count" style="display:none">0</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 style="font-family:var(--font-display);margin-top:36px;">Your Cart</h1>
+    <div id="cart-root"></div>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    let cartData = null;
+
+    async function loadCart() {
+      cartData = await api("/cart");
+      renderCart();
+    }
+
+    function renderCart() {
+      const root = document.getElementById("cart-root");
+      if (cartData.items.length === 0) {
+        root.innerHTML = `<div class="empty-state"><h2>Your cart is empty</h2><p><a href="/">Browse products →</a></p></div>`;
+        return;
+      }
+
+      const itemsHtml = cartData.items
+        .map(
+          (i) => `
+        <div class="cart-item" data-id="${i.productId}">
+          <img src="${i.image}" alt="${escapeHtml(i.name)}" />
+          <div class="info">
+            <h4>${escapeHtml(i.name)}</h4>
+            <div class="unit-price">${formatPrice(i.price)} × ${i.quantity}</div>
+            <button class="remove-link" data-remove="${i.productId}">Remove</button>
+          </div>
+          <div class="qty-control">
+            <button data-minus="${i.productId}">−</button>
+            <input type="text" value="${i.quantity}" readonly />
+            <button data-plus="${i.productId}" ${i.quantity >= i.stock ? "disabled" : ""}>+</button>
+          </div>
+          <div class="line-total">${formatPrice(i.subtotal)}</div>
+        </div>`
+        )
+        .join("");
+
+      root.innerHTML = `
+        <div class="cart-layout">
+          <div>${itemsHtml}</div>
+          <div class="summary-box">
+            <h3>Order Summary</h3>
+            <div class="summary-row"><span>Subtotal</span><span>${formatPrice(cartData.total)}</span></div>
+            <div class="summary-row"><span>Shipping</span><span>Free</span></div>
+            <div class="summary-row total"><span>Total</span><span>${formatPrice(cartData.total)}</span></div>
+            <div class="form-error" id="checkout-error"></div>
+            <div class="field" style="margin-top:16px;">
+              <label for="address">Shipping address</label>
+              <textarea id="address" placeholder="House no, street, city, PIN code"></textarea>
+            </div>
+            <button class="btn btn-primary btn-block" id="checkout-btn">Place Order</button>
+          </div>
+        </div>
+      `;
+
+      root.querySelectorAll("[data-plus]").forEach((btn) =>
+        btn.addEventListener("click", () => updateQty(btn.dataset.plus, 1))
+      );
+      root.querySelectorAll("[data-minus]").forEach((btn) =>
+        btn.addEventListener("click", () => updateQty(btn.dataset.minus, -1))
+      );
+      root.querySelectorAll("[data-remove]").forEach((btn) =>
+        btn.addEventListener("click", () => removeItem(btn.dataset.remove))
+      );
+      document.getElementById("checkout-btn").addEventListener("click", checkout);
+    }
+
+    async function updateQty(productId, delta) {
+      const item = cartData.items.find((i) => i.productId === productId);
+      const newQty = item.quantity + delta;
+      cartData = await api(`/cart/${productId}`, {
+        method: "PUT",
+        body: JSON.stringify({ quantity: newQty }),
+      });
+      renderCart();
+      renderHeader();
+    }
+
+    async function removeItem(productId) {
+      cartData = await api(`/cart/${productId}`, { method: "DELETE" });
+      renderCart();
+      renderHeader();
+    }
+
+    async function checkout() {
+      const errorBox = document.getElementById("checkout-error");
+      const address = document.getElementById("address").value;
+      errorBox.classList.remove("show");
+
+      try {
+        await api("/orders", {
+          method: "POST",
+          body: JSON.stringify({ shippingAddress: address }),
+        });
+        window.location.href = "/pages/orders.html?justOrdered=1";
+      } catch (err) {
+        if (err.message.toLowerCase().includes("log in")) {
+          window.location.href = "/pages/login.html?redirect=cart";
+          return;
+        }
+        errorBox.textContent = err.message;
+        errorBox.classList.add("show");
+      }
+    }
+
+    loadCart();
+  </script>
+</body>
+</html>

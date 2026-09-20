@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details — Foliage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">Foliage<span>.</span></a>
+      <nav class="nav-links" id="user-slot"></nav>
+      <nav class="nav-links">
+        <a href="/pages/cart.html">Cart <span class="cart-badge" id="cart-count" style="display:none">0</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="detail-root">
+    <p style="padding-top:40px;color:var(--muted)">Loading...</p>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get("id");
+    let currentProduct = null;
+    let qty = 1;
+
+    async function loadProduct() {
+      const root = document.getElementById("detail-root");
+      try {
+        currentProduct = await api(`/products/${productId}`);
+      } catch (err) {
+        root.innerHTML = `<div class="empty-state"><h2>Product not found</h2><p><a href="/">Back to store</a></p></div>`;
+        return;
+      }
+
+      const p = currentProduct;
+      root.innerHTML = `
+        <div class="product-detail">
+          <img src="${p.image}" alt="${escapeHtml(p.name)}" />
+          <div>
+            <span class="category">${p.category}</span>
+            <h1>${escapeHtml(p.name)}</h1>
+            <div class="price">${formatPrice(p.price)}</div>
+            <p class="desc">${escapeHtml(p.description)}</p>
+            <div class="qty-row">
+              <div class="qty-control">
+                <button id="qty-minus">−</button>
+                <input type="text" id="qty-input" value="1" readonly />
+                <button id="qty-plus">+</button>
+              </div>
+              <span class="stock-note">${p.stock > 0 ? p.stock + " in stock" : "Out of stock"}</span>
+            </div>
+            <button class="btn btn-primary" id="add-to-cart" ${p.stock === 0 ? "disabled" : ""}>Add to cart</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("qty-minus").addEventListener("click", () => {
+        qty = Math.max(1, qty - 1);
+        document.getElementById("qty-input").value = qty;
+      });
+      document.getElementById("qty-plus").addEventListener("click", () => {
+        qty = Math.min(p.stock, qty + 1);
+        document.getElementById("qty-input").value = qty;
+      });
+      document.getElementById("add-to-cart").addEventListener("click", async () => {
+        try {
+          await api("/cart", {
+            method: "POST",
+            body: JSON.stringify({ productId: p.id, quantity: qty }),
+          });
+          showToast("Added to cart");
+          renderHeader();
+        } catch (err) {
+          showToast(err.message);
+        }
+      });
+    }
+
+    loadProduct();
+  </script>
+</body>
+</html>

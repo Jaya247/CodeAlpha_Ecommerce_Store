@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — Foliage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">Foliage<span>.</span></a>
+      <nav class="nav-links" id="user-slot"></nav>
+      <nav class="nav-links">
+        <a href="/pages/cart.html">Cart <span class="cart-badge" id="cart-count" style="display:none">0</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="auth-wrap">
+    <h1>Create your account</h1>
+    <p class="sub">Register to save your orders and check out faster.</p>
+    <div class="form-error" id="form-error"></div>
+    <form id="register-form">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" required />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" required minlength="6" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Create account</button>
+    </form>
+    <div class="switch-link">Already have an account? <a href="/pages/login.html">Log in</a></div>
+  </div>
+
+  <script src="/js/common.js"></script>
+  <script>
+    document.getElementById("register-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const errorBox = document.getElementById("form-error");
+      errorBox.classList.remove("show");
+      try {
+        await api("/auth/register", {
+          method: "POST",
+          body: JSON.stringify({
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+          }),
+        });
+        window.location.href = "/";
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.classList.add("show");
+      }
+    });
+  </script>
+</body>
+</html>

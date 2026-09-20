@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Orders — Foliage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="brand">Foliage<span>.</span></a>
+      <nav class="nav-links" id="user-slot"></nav>
+      <nav class="nav-links">
+        <a href="/pages/cart.html">Cart <span class="cart-badge" id="cart-count" style="display:none">0</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-bottom:60px;">
+    <h1 style="font-family:var(--font-display);margin-top:36px;">Your Orders</h1>
+    <div id="orders-root"></div>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    async function loadOrders() {
+      const root = document.getElementById("orders-root");
+      const params = new URLSearchParams(window.location.search);
+
+      let orders;
+      try {
+        orders = await api("/orders");
+      } catch {
+        window.location.href = "/pages/login.html";
+        return;
+      }
+
+      if (params.get("justOrdered")) {
+        showToast("Order placed successfully!");
+      }
+
+      if (orders.length === 0) {
+        root.innerHTML = `<div class="empty-state"><h2>No orders yet</h2><p><a href="/">Start shopping →</a></p></div>`;
+        return;
+      }
+
+      root.innerHTML = orders
+        .map(
+          (o) => `
+        <div class="order-card">
+          <div class="order-head">
+            <span>Order #${o.id.slice(0, 8)} · ${new Date(o.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+            <span class="status-chip">${o.status}</span>
+          </div>
+          ${o.items
+            .map(
+              (i) => `<div class="order-line"><span>${escapeHtml(i.name)} × ${i.quantity}</span><span>${formatPrice(i.subtotal)}</span></div>`
+            )
+            .join("")}
+          <div class="order-line" style="font-weight:700;border-top:1px solid var(--line);margin-top:8px;padding-top:8px;">
+            <span>Total</span><span>${formatPrice(o.total)}</span>
+          </div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-top:8px;">Shipping to: ${escapeHtml(o.shippingAddress)}</div>
+        </div>`
+        )
+        .join("");
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>
