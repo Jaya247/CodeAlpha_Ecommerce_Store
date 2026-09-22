@@ -1,5 +1,5 @@
 # CodeAlpha — Simple E-commerce Store (Task 1)
-code-alpha-ecommerce-store-dusky.vercel.app
+https://code-alpha-ecommerce-store-dusky.vercel.app
 
 A full-stack e-commerce store built for the **CodeAlpha Full Stack Development Internship**.
 
